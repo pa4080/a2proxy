@@ -4,9 +4,10 @@
 [[ "$EUID" -ne 0 ]] && { echo "Please run as root (use sudo)."; exit 0; }
 
 # Settings
-BASE_DOMAIN="example.com"
-DEFAULT_IP="192.168.1.50"
+BASE_DOMAIN="example.com" # ="$(dnsdomainname -f)"
+DEFAULT_IP="192.168.1.50" # ="$(dnsdomainname -i)"
 TIME_ID=$(date +%Y.%m.%d.%Hh.%Mm)
+
 APACHE_VH_AVAILABLE="/etc/apache2/sites-available"
 APACHE_DOCROOT_BASE="/var/www"
 
