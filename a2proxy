@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# The script should be run as root
+[[ "$EUID" -ne 0 ]] && { echo "Please run as root (use sudo)."; exit 0; }
+
+# Settings
+BASE_DOMAIN="metalevel.tech"
+DEFAULT_IP="134.209.133.165"
+TIME_ID=$(date +%Y.%m.%d.%Hh.%Mm)
+APACHE_VH_AVAILABLE="/etc/apache2/sites-available"
+APACHE_DOCROOT_BASE="/var/www"
+
+# At least sub-domain name and the proxied application port must be provided
+if [[ -z ${1+x} ]]
+then
+	echo "a2proxy sub-domain 8080 [127.0.0.1]"
+	echo "a2proxy sub-domain remove"
+	exit
+else
+	SUB_DOMAIN="$1"
+	VHOST="${SUB_DOMAIN}.${BASE_DOMAIN}"
+fi
+
+if [[ -z ${2+x} ]]
+then
+	echo "a2proxy 'sub-domain' '8080' [127.0.0.1]"
+	exit
+else
+	PORT="$2"
+fi
+
+if [[ -z ${3+x} ]]
+then
+	HOST="127.0.0.1"
+else
+	HOST="$3"
+fi
+
+# Function add/create/enable
+function create() {
+	cp -i "${APACHE_VH_AVAILABLE}/a2proxy.template.conf" "${APACHE_VH_AVAILABLE}/${VHOST}.conf"
+	sed -i -r \
+		-e "s#example\.com#${BASE_DOMAIN}#g" \
+		-e "s#proxy_#${SUB_DOMAIN}_#g" \
+		-e "s#proxy.#${SUB_DOMAIN}.#g" \
+		-e "s#12345#${PORT}#g" \
+		-e "s#127\.0\.0\.1#${HOST}#g" \
+		"${APACHE_VH_AVAILABLE}/${VHOST}.conf"
+
+	mkdir -p "${APACHE_DOCROOT_BASE}/${VHOST}"
+	echo "${VHOST} >> ${HOST}:${PORT}" > "${APACHE_DOCROOT_BASE}/${VHOST}/hello.html"
+
+	# Test the configuration and reload apache
+	a2ensite "${VHOST}.conf" && \
+	apache2ctl configtest && \
+	systemctl reload apache2.service && \
+	echo "Enabled: https://${VHOST}"
+
+	# Create DNS entry
+	#dns2pihole "${SUB_DOMAIN}" add
+	
+	# pm2 commands
+	pm2_start
+}
+
+# Function remove/delete
+function remove() {
+	a2dissite "${VHOST}.conf" && \
+	apache2ctl configtest && \
+	systemctl reload apache2.service
+
+	mkdir -p "${APACHE_VH_AVAILABLE}/backup/"
+	mv -i "${APACHE_VH_AVAILABLE}/${VHOST}.conf" "${APACHE_VH_AVAILABLE}/backup/${VHOST}.${TIME_ID}.conf"
+
+	mkdir -p "${APACHE_DOCROOT_BASE}/backup/"
+	mv -i "${APACHE_DOCROOT_BASE}/${VHOST}" "${APACHE_DOCROOT_BASE}/backup/"
+
+	echo "Removed: https://${VHOST}"
+
+	# Remove DNS entry
+	#dns2pihole "${SUB_DOMAIN}" remove
+
+	# pm2 commands
+	pm2_stop
+}
+
+function pm2_start() {
+	echo ''
+	echo -e "\t https://pm2.keymetrics.io/docs/usage/startup/"
+	echo -e "\t https://pm2.keymetrics.io/docs/usage/process-management/ \n"
+	echo -e "\t pm2 ls \t pm2 monit \t pm2 plus \n"
+
+	echo -e "pm2 start './server.js' --name '${SUB_DOMAIN}'"
+	echo -e "pm2 show '${SUB_DOMAIN}'"
+	echo -e "pm2 save \n"
+}
+
+function pm2_stop() {
+	echo ''
+	echo -e "\t https://pm2.keymetrics.io/docs/usage/startup/"
+	echo -e "\t https://pm2.keymetrics.io/docs/usage/process-management/ \n"
+	echo -e "\t pm2 ls \t pm2 monit \t pm2 plus \n"
+
+	echo -e "pm2 stop '${SUB_DOMAIN}'"
+	echo -e "pm2 delete '${SUB_DOMAIN}'"
+	echo -e "pm2 save \n"
+}
+
+
+# Do the Action
+if [[ ${2^^} == 'REMOVE' ]]
+then
+	remove
+else
+	create
+fi
