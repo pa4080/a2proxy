@@ -4,8 +4,8 @@
 [[ "$EUID" -ne 0 ]] && { echo "Please run as root (use sudo)."; exit 0; }
 
 # Settings
-BASE_DOMAIN="metalevel.tech"
-DEFAULT_IP="134.209.133.165"
+BASE_DOMAIN="example.com"
+DEFAULT_IP="192.168.1.50"
 TIME_ID=$(date +%Y.%m.%d.%Hh.%Mm)
 APACHE_VH_AVAILABLE="/etc/apache2/sites-available"
 APACHE_DOCROOT_BASE="/var/www"
@@ -56,11 +56,9 @@ function create() {
 	systemctl reload apache2.service && \
 	echo "Enabled: https://${VHOST}"
 
-	# Create DNS entry
-	#dns2pihole "${SUB_DOMAIN}" add
-	
-	# pm2 commands
-	pm2_start
+	# Additional functions
+	# dns2pihole "${SUB_DOMAIN}" add
+	pm2help
 }
 
 # Function remove/delete
@@ -77,35 +75,10 @@ function remove() {
 
 	echo "Removed: https://${VHOST}"
 
-	# Remove DNS entry
-	#dns2pihole "${SUB_DOMAIN}" remove
-
-	# pm2 commands
-	pm2_stop
+	# Additional functions:
+	# dns2pihole "${SUB_DOMAIN}" remove
+	pm2help
 }
-
-function pm2_start() {
-	echo ''
-	echo -e "\t https://pm2.keymetrics.io/docs/usage/startup/"
-	echo -e "\t https://pm2.keymetrics.io/docs/usage/process-management/ \n"
-	echo -e "\t pm2 ls \t pm2 monit \t pm2 plus \n"
-
-	echo -e "pm2 start './server.js' --name '${SUB_DOMAIN}'"
-	echo -e "pm2 show '${SUB_DOMAIN}'"
-	echo -e "pm2 save \n"
-}
-
-function pm2_stop() {
-	echo ''
-	echo -e "\t https://pm2.keymetrics.io/docs/usage/startup/"
-	echo -e "\t https://pm2.keymetrics.io/docs/usage/process-management/ \n"
-	echo -e "\t pm2 ls \t pm2 monit \t pm2 plus \n"
-
-	echo -e "pm2 stop '${SUB_DOMAIN}'"
-	echo -e "pm2 delete '${SUB_DOMAIN}'"
-	echo -e "pm2 save \n"
-}
-
 
 # Do the Action
 if [[ ${2^^} == 'REMOVE' ]]
@@ -114,3 +87,17 @@ then
 else
 	create
 fi
+
+# Additional functions (dns2pihole is external script)
+function pm2help() {
+	echo ''
+	echo "https://pm2.keymetrics.io/docs/usage/startup/"
+	echo "https://pm2.keymetrics.io/docs/usage/process-management/"
+	echo "pm2 ls, pm2 monit, pm2 plus"
+	echo ''
+	echo -e "cd app/"
+	echo -e "pm2 start './server.js' --name '${SUB_DOMAIN}'"
+	echo -e "pm2 stop '${SUB_DOMAIN}'"
+	echo -e "pm2 delete '${SUB_DOMAIN}'"
+	echo -e "pm2 save \n"
+}
