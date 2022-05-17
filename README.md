@@ -34,3 +34,5 @@ The template file `a2proxy.template.conf` constrains a basic Reverse Proxy confi
 * service...
 
 Within the directory `a2-confs/` as reference is provided my current Apache2 base configuration.
+
+## Usage
