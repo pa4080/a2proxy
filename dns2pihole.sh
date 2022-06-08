@@ -1,4 +1,5 @@
 #!/bin/bash
+export LC_ALL=C
 
 # Automate the process of setting up DNS records in Pihole,
 # installed by Docker into the directory '/home/docker/pihole'.
