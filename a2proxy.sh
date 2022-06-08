@@ -1,4 +1,5 @@
 #!/bin/bash
+export LC_ALL=C
 
 # The script should be run as root
 [[ "$EUID" -ne 0 ]] && { echo "Please run as root (use sudo)."; exit 0; }
