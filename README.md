@@ -50,3 +50,23 @@ The template file `a2proxy.template.conf` constrains a basic Reverse Proxy confi
 Within the directory `a2-confs/` as a reference is provided my current Apache2 base configuration.
 
 ## Usage
+
+```bash
+$ a2proxy
+Please run as root (use sudo).
+```
+```bash
+$ sudo a2proxy 
+a2proxy sub-domain 8080 [127.0.0.1]
+a2proxy sub-domain remove
+```
+```bash
+$ sudo a2proxy guacamole 8081
+Enabling site guacamole.example.com.
+To activate the new configuration, you need to run:
+  systemctl reload apache2
+Syntax OK
+Enabled: https://guacamole.example.com                    # Output from a2dns
+The entry '172.16.1.151 guacamole.szs.space' is created.  # Output from a2dns
+```
+
