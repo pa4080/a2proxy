@@ -66,7 +66,7 @@ Enabling site guacamole.example.com.
 To activate the new configuration, you need to run:
   systemctl reload apache2
 Syntax OK
-Enabled: https://guacamole.example.com                    # Output from a2dns
-The entry '172.16.1.151 guacamole.szs.space' is created.  # Output from a2dns
+Enabled: https://guacamole.example.com                    # Output from dns2pihole.sh
+The entry '172.16.1.151 guacamole.szs.space' is created.  # Output from dns2pihole.sh
 ```
 
