@@ -70,3 +70,6 @@ Enabled: https://guacamole.example.com                    # Output from dns2piho
 The entry '172.16.1.151 guacamole.szs.space' is created.  # Output from dns2pihole.sh
 ```
 
+## References
+
+* DigitalOcean: [How To Use Apache HTTP Server As Reverse-Proxy Using mod_proxy Extension](https://www.digitalocean.com/community/tutorials/how-to-use-apache-http-server-as-reverse-proxy-using-mod_proxy-extension)
